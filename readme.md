@@ -111,7 +111,7 @@ Display in Dashboard
 - Environment cleanup on branch deletion  
 
 ---
-
+<!--
 ## Installation
 
 Install globally:
@@ -128,7 +128,7 @@ npx branchify init
 
 ---
 
-<!-- ## CLI Commands
+ ## CLI Commands
 
 Initialize Branchify:
 
