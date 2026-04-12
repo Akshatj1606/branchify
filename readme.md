@@ -109,7 +109,7 @@ Display in Dashboard
 - Process tracking and recovery  
 - Log management  
 - Environment cleanup on branch deletion  
-
+<!--
 ---
 
 ## Installation
@@ -128,7 +128,7 @@ npx branchify init
 
 ---
 
-## CLI Commands
+ ## CLI Commands
 
 Initialize Branchify:
 
@@ -164,7 +164,7 @@ Delete environment:
 
 ```bash
 branchify delete <branch-name>
-```
+``` -->
 
 ---
 
