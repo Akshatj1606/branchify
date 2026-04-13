@@ -1,9 +1,8 @@
 #!/bin/bash
 
-BACKEND_URL="http://localhost:5000"
+BACKEND_URL="http://localhost:3000"
 
 BRANCH=$(git branch --show-current)
-
 TARGET_ENV="dev"
 
 echo "--------------------------------"
@@ -23,26 +22,22 @@ fi
 
 echo "Mapped Environment: $TARGET_ENV"
 
-# Detect install location
-if [ -d ".branchify" ]; then
-    BRANCHIFY_ROOT=".branchify"
-else
-    BRANCHIFY_ROOT="."
-fi
-
+BRANCHIFY_ROOT=".branchify"
 ENV_FILE="$BRANCHIFY_ROOT/environments/$TARGET_ENV/.env"
 
 if [ ! -f "$ENV_FILE" ]; then
-    echo "Environment config not found: $ENV_FILE"
+    echo "❌ Environment config not found: $ENV_FILE"
     exit 1
 fi
 
-echo "Loading environment config..."
-cat "$ENV_FILE"
+echo "Applying environment configuration..."
 
-echo ""
+# Apply config to project
+cp "$ENV_FILE" ".env"
 
-# Sanitize branch name for DB usage
+echo "✅ .env updated from $TARGET_ENV configuration"
+
+# Sanitize branch name
 SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '_')
 
 echo "Checking backend for existing environment..."

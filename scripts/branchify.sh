@@ -1,77 +1,51 @@
 #!/bin/bash
 
-BACKEND="http://localhost:5000"
+BACKEND="http://localhost:3000"
 
-case "$1" in
+COMMAND=$1
+BRANCH=$2
 
-    init)
-        echo "Initializing Branchify..."
-
-        mkdir -p environments/dev
-        mkdir -p environments/staging
-        mkdir -p environments/prod
-
-        # Create environment configs
-        if [ ! -f environments/dev/.env ]; then
-            echo "ENV=development" > environments/dev/.env
-        fi
-
-        if [ ! -f environments/staging/.env ]; then
-            echo "ENV=staging" > environments/staging/.env
-        fi
-
-        if [ ! -f environments/prod/.env ]; then
-            echo "ENV=production" > environments/prod/.env
-        fi
-
-        mkdir -p scripts
-
-        # Install git hook
-        mkdir -p .git/hooks
-
-        cat << 'EOF' > .git/hooks/post-checkout
-#!/bin/bash
-./scripts/switch-env.sh
-EOF
-
-        chmod +x .git/hooks/post-checkout
-
-        echo "Branchify initialized."
-        ;;
+case "$COMMAND" in
 
     status)
         echo "Fetching environments..."
-        curl -s $BACKEND/env | jq .
-        ;;
-
-    create)
-        curl -s -X POST $BACKEND/env \
-        -H "Content-Type: application/json" \
-        -d "{\"branch\":\"$2\"}" | jq .
-        ;;
-
-    stop)
-        curl -s -X POST $BACKEND/env/$2/stop | jq .
+        curl -s "$BACKEND/env" | jq .
         ;;
 
     delete)
-        curl -s -X DELETE $BACKEND/env/$2 | jq .
+        if [ -z "$BRANCH" ]; then
+            echo "Usage: ./branchify delete <branch>"
+            exit 1
+        fi
+
+        SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '_')
+
+        echo "Deleting environment for branch: $BRANCH"
+
+        curl -s -X DELETE "$BACKEND/env/$SAFE_BRANCH" | jq .
         ;;
 
-    switch)
-        ./scripts/switch-env.sh
+    stop)
+        if [ -z "$BRANCH" ]; then
+            echo "Usage: ./branchify stop <branch>"
+            exit 1
+        fi
+
+        SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '_')
+
+        echo "Stopping environment for branch: $BRANCH"
+
+        curl -s -X POST "$BACKEND/env/$SAFE_BRANCH/stop" | jq .
         ;;
 
     *)
         echo ""
         echo "Branchify CLI"
-        echo "--------------"
-        echo "branchify init"
-        echo "branchify status"
-        echo "branchify create <branch>"
-        echo "branchify stop <branch>"
-        echo "branchify delete <branch>"
-        echo "branchify switch"
+        echo "-------------"
+        echo "Usage:"
+        echo "./branchify status"
+        echo "./branchify stop <branch>"
+        echo "./branchify delete <branch>"
         echo ""
         ;;
 esac

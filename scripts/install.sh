@@ -17,16 +17,20 @@ fi
 echo "Installing Branchify into $TARGET_REPO"
 
 BRANCHIFY_DIR="$TARGET_REPO/.branchify"
+SCRIPTS_DIR="$BRANCHIFY_DIR/scripts"
 
 # Create directory structure
 mkdir -p "$BRANCHIFY_DIR/environments/dev"
 mkdir -p "$BRANCHIFY_DIR/environments/staging"
 mkdir -p "$BRANCHIFY_DIR/environments/prod"
-mkdir -p "$BRANCHIFY_DIR/scripts"
+mkdir -p "$SCRIPTS_DIR"
 
-# Copy switch script
-cp "$SCRIPT_DIR/switch-env.sh" "$BRANCHIFY_DIR/scripts/"
-chmod +x "$BRANCHIFY_DIR/scripts/switch-env.sh"
+# Copy scripts
+cp "$SCRIPT_DIR/switch-env.sh" "$SCRIPTS_DIR/"
+cp "$SCRIPT_DIR/branchify.sh" "$SCRIPTS_DIR/branchify"
+
+chmod +x "$SCRIPTS_DIR/switch-env.sh"
+chmod +x "$SCRIPTS_DIR/branchify"
 
 # Create environment configs
 if [ ! -f "$BRANCHIFY_DIR/environments/dev/.env" ]; then
@@ -61,7 +65,7 @@ if [ ! -f "$TARGET_REPO/.gitignore" ]; then
     touch "$TARGET_REPO/.gitignore"
 fi
 
-# Add .branchify to gitignore if not already present
+# Add .branchify to gitignore
 if ! grep -q "^.branchify/" "$TARGET_REPO/.gitignore"; then
     echo ".branchify/" >> "$TARGET_REPO/.gitignore"
 fi
@@ -69,4 +73,10 @@ fi
 echo ""
 echo "Branchify installed successfully."
 echo "Files installed in: $BRANCHIFY_DIR"
-echo "Switch branches to trigger environment provisioning."
+echo ""
+echo "Run commands using:"
+echo "./.branchify/scripts/branchify status"
+echo "./.branchify/scripts/branchify create <branch>"
+echo "./.branchify/scripts/branchify delete <branch>"
+echo ""
+echo "Switch branches to trigger automatic environment provisioning."
