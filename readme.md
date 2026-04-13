@@ -43,7 +43,7 @@ Branchify automates environment management by:
 ---
 
 ## Architecture
-
+~~~
 Developer
    |
    | git checkout feature/login
@@ -67,7 +67,7 @@ Express Backend
           v
 MongoDB
 (persistent environment storage)
-
+~~~
 ---
 
 ## Project Structure
