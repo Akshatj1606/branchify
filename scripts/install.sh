@@ -1,5 +1,8 @@
+# install.sh is used to integrate Branchify into an existing Git repository by setting up all required files and automation.
+
 #!/bin/bash
 
+# this finds Where this script is stored --> and stores it in SCRIPT_DIR
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 TARGET_REPO=$1
@@ -9,6 +12,7 @@ if [ -z "$TARGET_REPO" ]; then
     exit 1
 fi
 
+# this checks is this a Git repository?
 if [ ! -d "$TARGET_REPO/.git" ]; then
     echo "Error: Target is not a git repository"
     exit 1
@@ -19,6 +23,7 @@ echo "Installing Branchify into $TARGET_REPO"
 BRANCHIFY_DIR="$TARGET_REPO/.branchify"
 SCRIPTS_DIR="$BRANCHIFY_DIR/scripts"
 
+# The script initializes a structured directory for managing environments and scripts.
 # Create directory structure
 mkdir -p "$BRANCHIFY_DIR/environments/dev"
 mkdir -p "$BRANCHIFY_DIR/environments/staging"
@@ -29,6 +34,7 @@ mkdir -p "$SCRIPTS_DIR"
 cp "$SCRIPT_DIR/switch-env.sh" "$SCRIPTS_DIR/"
 cp "$SCRIPT_DIR/branchify.sh" "$SCRIPTS_DIR/branchify"
 
+# Makes them executable
 chmod +x "$SCRIPTS_DIR/switch-env.sh"
 chmod +x "$SCRIPTS_DIR/branchify"
 
@@ -48,12 +54,15 @@ fi
 # Install Git hook
 HOOK="$TARGET_REPO/.git/hooks/post-checkout"
 
-cat << 'EOF' > "$HOOK"
+# write script inside git hook 
+cat << 'EOF' > "$HOOK" 
 #!/bin/bash
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
 cd "$REPO_ROOT"
+
+# Whenever branch changes → run switch-env.sh
 
 bash ".branchify/scripts/switch-env.sh"
 EOF
