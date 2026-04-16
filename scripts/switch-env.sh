@@ -1,8 +1,12 @@
+# This script runs automatically when you switch Git branches
+
 #!/bin/bash
 
 BACKEND_URL="http://localhost:3000"
 
+# Gets current Git branch
 BRANCH=$(git branch --show-current)
+# Default environment = dev
 TARGET_ENV="dev"
 
 echo "--------------------------------"
@@ -22,9 +26,12 @@ fi
 
 echo "Mapped Environment: $TARGET_ENV"
 
+# Locate Environment File
+
 BRANCHIFY_ROOT=".branchify"
 ENV_FILE="$BRANCHIFY_ROOT/environments/$TARGET_ENV/.env"
 
+# Does this env file exist?
 if [ ! -f "$ENV_FILE" ]; then
     echo "❌ Environment config not found: $ENV_FILE"
     exit 1
@@ -42,16 +49,23 @@ SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '_')
 
 echo "Checking backend for existing environment..."
 
+# Calls backend --> Filters using jq --> Checks:Does this branch environment already exist?
+
 EXISTS=$(curl -s "$BACKEND_URL/env" | jq -r ".[] | select(.branch == \"$SAFE_BRANCH\") | .branch")
 
+# If environment NOT found:
 if [ -z "$EXISTS" ]; then
     echo "Creating environment..."
+
+    # call backend --> create env and Allocate resources
 
     RESPONSE=$(curl -s -X POST "$BACKEND_URL/env" \
         -H "Content-Type: application/json" \
         -d "{\"branch\":\"$SAFE_BRANCH\"}")
 
     echo "$RESPONSE"
+
+# If exists → skip creation
 else
     echo "Environment already exists."
 fi
